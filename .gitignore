@@ -1,2 +1,5 @@
 ginhello
 go.sum
+gorm.db
+.gcloudignore
+app.yaml

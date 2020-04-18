@@ -11,9 +11,10 @@ import (
 
 // ShowIndexPage func
 func ShowIndexPage(c *gin.Context) {
+	articles := model.GetAllArticles()
 	render(c, gin.H{
 		"title":   "Home Page",
-		"payload": model.GetAllArticles()}, "index.html")
+		"payload": articles}, "index.html")
 }
 
 // GetArticle func

@@ -1,19 +1,29 @@
 package model
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
-func TestGetAllArticles(t *testing.T) {
-	alist := GetAllArticles()
-	if len(alist) != len(articleList) {
-		t.Fail()
+var articleTest *Article
+
+func TestCreateArticle(t *testing.T) {
+	articleTest = &Article{Title: "test", Content: "test"}
+	id, err := CreateArticle(articleTest)
+	if err != nil {
+		t.Errorf("Failed to create article: %s\n", err.Error())
 	}
-	for i, v := range alist {
-		if v.Content != articleList[i].Content ||
-			v.ID != articleList[i].ID ||
-			v.Title != articleList[i].Title {
-
-			t.Fail()
-			break
-		}
+	articleTest.ID = id
+}
+func TestGetArticle(t *testing.T) {
+	article, err := GetArticleByID(articleTest.ID)
+	if err != nil {
+		t.Errorf("Failed to get article: %s\n", err.Error())
+	}
+	if article.ID != articleTest.ID {
+		t.Errorf("Article Ids do not match: %d\n vs %d\n", article.ID, articleTest.ID)
+	}
+	if reflect.DeepEqual(article, articleTest) != true {
+		t.Errorf("Articles do not match: %+v\n vs %+v\n", article, articleTest)
 	}
 }
