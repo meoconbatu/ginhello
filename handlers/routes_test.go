@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +14,6 @@ func TestShowIndexPageUnauthenticated(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)
 
-	fmt.Println(req.Header)
 	testHTTPResponse(t, router, req, func(w *httptest.ResponseRecorder) bool {
 		statusOK := w.Code == http.StatusOK
 		p, err := ioutil.ReadAll(w.Body)
@@ -25,15 +23,14 @@ func TestShowIndexPageUnauthenticated(t *testing.T) {
 }
 func TestArticleUnauthenticated(t *testing.T) {
 	router := getRouter(true)
-	router.GET("article/view/:article_id", GetArticle)
+	router.GET("/article/view/:article_id", GetArticle)
 
-	req, _ := http.NewRequest("GET", "article/view/1", nil)
-	// req.Header.Set("Accept", "text/html")
+	req, _ := http.NewRequest("GET", "/article/view/1", nil)
+
 	testHTTPResponse(t, router, req, func(w *httptest.ResponseRecorder) bool {
-		fmt.Println(w)
 		statusOK := w.Code == http.StatusOK
 		p, err := ioutil.ReadAll(w.Body)
-		pageOK := err == nil && strings.Index(string(p), "<title>test</title>") > 0
+		pageOK := err == nil && strings.Index(string(p), "<h1>test</h1>") > 0
 		return statusOK && pageOK
 	})
 }
