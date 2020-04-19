@@ -5,17 +5,20 @@ import (
 	"testing"
 )
 
-var articleTest *Article
-
-func TestCreateArticle(t *testing.T) {
-	articleTest = &Article{Title: "test", Content: "test"}
+func createArticleTest(t *testing.T) *Article {
+	articleTest := &Article{Title: "test", Content: "test"}
 	id, err := CreateArticle(articleTest)
 	if err != nil {
 		t.Errorf("Failed to create article: %s\n", err.Error())
 	}
 	articleTest.ID = id
+	t.Cleanup(func() {
+		DeleteArticleByID(articleTest.ID)
+	})
+	return articleTest
 }
 func TestGetArticle(t *testing.T) {
+	articleTest := createArticleTest(t)
 	article, err := GetArticleByID(articleTest.ID)
 	if err != nil {
 		t.Errorf("Failed to get article: %s\n", err.Error())

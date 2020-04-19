@@ -57,3 +57,8 @@ func CreateArticle(article *Article) (int, error) {
 	}
 	return (*article).ID, nil
 }
+
+// DeleteArticleByID func
+func DeleteArticleByID(id int) {
+	db.Where("id = ?", id).Delete(&Article{})
+}
