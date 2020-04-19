@@ -9,7 +9,7 @@ func createArticleTest(t *testing.T) *Article {
 	articleTest := &Article{Title: "test", Content: "test"}
 	id, err := CreateArticle(articleTest)
 	if err != nil {
-		t.Errorf("Failed to create article: %s\n", err.Error())
+		t.Fatalf("Failed to create article: %s\n", err.Error())
 	}
 	articleTest.ID = id
 	t.Cleanup(func() {
