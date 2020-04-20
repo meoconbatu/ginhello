@@ -8,9 +8,14 @@ import (
 	"testing"
 )
 
+var env Env
+
+func init() {
+	env = Env{&mockDB{}}
+}
 func TestShowIndexPageUnauthenticated(t *testing.T) {
 	router := getRouter(true)
-	router.GET("/", ShowIndexPage)
+	router.GET("/", env.ShowIndexPage)
 
 	req, _ := http.NewRequest("GET", "/", nil)
 
@@ -23,7 +28,7 @@ func TestShowIndexPageUnauthenticated(t *testing.T) {
 }
 func TestArticleUnauthenticated(t *testing.T) {
 	router := getRouter(true)
-	router.GET("/article/view/:article_id", GetArticle)
+	router.GET("/article/view/:article_id", env.GetArticle)
 
 	req, _ := http.NewRequest("GET", "/article/view/1", nil)
 

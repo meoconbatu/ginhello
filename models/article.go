@@ -2,9 +2,6 @@ package model
 
 import (
 	"errors"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 // Article type
@@ -14,31 +11,15 @@ type Article struct {
 	Content string `json:"content"`
 }
 
-var articleList = []Article{
-	{ID: 1, Title: "Article 1", Content: "Article 1 body"},
-	{ID: 2, Title: "Article 2", Content: "Article 2 body"},
-}
-var db *gorm.DB
-
-func init() {
-	var err error
-	db, err = gorm.Open("sqlite3", "./gorm.db")
-	// defer db.Close()
-	if err != nil {
-		panic("failed to connect database")
-	}
-	// db.AutoMigrate(&Article{})
-}
-
 // GetAllArticles Return a list of all the articles
-func GetAllArticles() []Article {
+func (db *DB) GetAllArticles() []Article {
 	var articles []Article
 	db.Find(&articles)
 	return articles
 }
 
 // GetArticleByID func
-func GetArticleByID(id int) (*Article, error) {
+func (db *DB) GetArticleByID(id int) (*Article, error) {
 	var article Article
 
 	db.First(&article, id)
@@ -50,7 +31,7 @@ func GetArticleByID(id int) (*Article, error) {
 }
 
 // CreateArticle func
-func CreateArticle(article *Article) (int, error) {
+func (db *DB) CreateArticle(article *Article) (int, error) {
 	db.Create(&article)
 	if (*article).ID == 0 {
 		return 0, errors.New("Error when create article")
@@ -59,6 +40,6 @@ func CreateArticle(article *Article) (int, error) {
 }
 
 // DeleteArticleByID func
-func DeleteArticleByID(id int) {
+func (db *DB) DeleteArticleByID(id int) {
 	db.Where("id = ?", id).Delete(&Article{})
 }

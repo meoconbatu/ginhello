@@ -9,18 +9,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Env struct
+type Env struct {
+	DB model.DataStore
+}
+
+// DB variable
+
 // ShowIndexPage func
-func ShowIndexPage(c *gin.Context) {
-	articles := model.GetAllArticles()
+func (env *Env) ShowIndexPage(c *gin.Context) {
+	articles := env.DB.GetAllArticles()
 	render(c, gin.H{
 		"title":   "Home Page",
 		"payload": articles}, "index.html")
 }
 
 // GetArticle func
-func GetArticle(c *gin.Context) {
+func (env *Env) GetArticle(c *gin.Context) {
 	if articleID, err := strconv.Atoi(c.Param("article_id")); err == nil {
-		if article, err := model.GetArticleByID(articleID); err == nil {
+		if article, err := env.DB.GetArticleByID(articleID); err == nil {
 			render(c, gin.H{
 				"title":   "Home Page",
 				"payload": article}, "article.html")

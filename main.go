@@ -2,6 +2,7 @@ package main
 
 import (
 	handler "ginhello/handlers"
+	model "ginhello/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,13 @@ func main() {
 }
 
 func initializeRoutes() {
-	router.GET("/", handler.ShowIndexPage)
-	router.GET("article/view/:article_id", handler.GetArticle)
+	var err error
+	db, err := model.NewDB("./models/gorm.db")
+	if err != nil {
+		panic("failed to connect database")
+	}
+	env := &handler.Env{DB: db}
+
+	router.GET("/", env.ShowIndexPage)
+	router.GET("article/view/:article_id", env.GetArticle)
 }
