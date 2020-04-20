@@ -6,9 +6,9 @@ import (
 
 // Article type
 type Article struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	ID      int
+	Title   string `form:"title"`
+	Content string `form:"content"`
 }
 
 // GetAllArticles Return a list of all the articles

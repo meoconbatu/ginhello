@@ -2,7 +2,7 @@
 
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
-
+  <a href="/article/new">+ Add</a>
    <!--Loop over the payload variable, which is the list of articles-->
   {{range .payload }}
     <!--Create the link for the article based on its ID-->

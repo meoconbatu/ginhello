@@ -37,6 +37,26 @@ func (env *Env) GetArticle(c *gin.Context) {
 	}
 }
 
+// CreateArticle func
+func (env *Env) CreateArticle(c *gin.Context) {
+	switch c.Request.Method {
+	case "GET":
+		render(c, gin.H{"title": "Home Page"}, "new.html")
+	case "POST":
+		var article model.Article
+		if c.ShouldBind(&article) != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		_, err := env.DB.CreateArticle(&article)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/")
+	}
+}
+
 func render(c *gin.Context, data gin.H, templateName string) {
 	switch c.Request.Header.Get("Accept") {
 	case "application/json":
