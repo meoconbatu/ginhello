@@ -31,12 +31,12 @@ func (db *DB) GetArticleByID(id int) (*Article, error) {
 }
 
 // CreateArticle func
-func (db *DB) CreateArticle(article *Article) (int, error) {
+func (db *DB) CreateArticle(article *Article) error {
 	db.Create(&article)
 	if (*article).ID == 0 {
-		return 0, errors.New("Error when create article")
+		return errors.New("Error when create article")
 	}
-	return (*article).ID, nil
+	return nil
 }
 
 // DeleteArticleByID func

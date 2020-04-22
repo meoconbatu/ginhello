@@ -11,8 +11,11 @@ import (
 type DataStore interface {
 	GetAllArticles() []Article
 	GetArticleByID(id int) (*Article, error)
-	CreateArticle(article *Article) (int, error)
+	CreateArticle(article *Article) error
 	DeleteArticleByID(id int)
+
+	AuthenticateUser(username, password string) error
+	CreateUser(user *User) error
 }
 
 // DB type

@@ -48,7 +48,7 @@ func (env *Env) CreateArticle(c *gin.Context) {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		_, err := env.DB.CreateArticle(&article)
+		err := env.DB.CreateArticle(&article)
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -57,6 +57,41 @@ func (env *Env) CreateArticle(c *gin.Context) {
 	}
 }
 
+// Signin func
+func (env *Env) Signin(c *gin.Context) {
+	switch c.Request.Method {
+	case "GET":
+		render(c, gin.H{"title": "Home Page"}, "signin.html")
+	case "POST":
+		username := c.PostForm("username")
+		password := c.PostForm("password")
+		err := env.DB.AuthenticateUser(username, password)
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/")
+	}
+}
+
+// Signup func
+func (env *Env) Signup(c *gin.Context) {
+	switch c.Request.Method {
+	case "GET":
+		render(c, gin.H{"title": "Home Page"}, "signup.html")
+	case "POST":
+		var user model.User
+		if c.ShouldBind(&user) != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		if env.DB.CreateUser(&user) != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/")
+	}
+}
 func render(c *gin.Context, data gin.H, templateName string) {
 	switch c.Request.Header.Get("Accept") {
 	case "application/json":

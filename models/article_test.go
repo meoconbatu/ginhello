@@ -16,11 +16,10 @@ func init() {
 }
 func createArticleTest(t *testing.T) *Article {
 	articleTest := &Article{Title: "test", Content: "test"}
-	id, err := db.CreateArticle(articleTest)
+	err := db.CreateArticle(articleTest)
 	if err != nil {
 		t.Fatalf("Failed to create article: %s\n", err.Error())
 	}
-	articleTest.ID = id
 	t.Cleanup(func() {
 		db.DeleteArticleByID(articleTest.ID)
 	})

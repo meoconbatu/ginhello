@@ -24,12 +24,19 @@ func (mdb *mockDB) GetArticleByID(id int) (*model.Article, error) {
 	return &model.Article{ID: 1, Title: "test", Content: "test"}, nil
 }
 
-func (mdb *mockDB) CreateArticle(article *model.Article) (int, error) {
-	return 1, nil
+func (mdb *mockDB) CreateArticle(article *model.Article) error {
+	return nil
 }
 
 func (mdb *mockDB) DeleteArticleByID(id int) {
 
+}
+func (mdb *mockDB) AuthenticateUser(username, password string) error {
+	return nil
+}
+
+func (mdb *mockDB) CreateUser(user *model.User) error {
+	return nil
 }
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
