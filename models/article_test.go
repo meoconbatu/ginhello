@@ -13,6 +13,7 @@ func init() {
 	if err != nil {
 		panic("failed to connect database")
 	}
+	db.AutoMigrate(&Article{}, &User{})
 }
 func createArticleTest(t *testing.T) *Article {
 	articleTest := &Article{Title: "test", Content: "test"}
