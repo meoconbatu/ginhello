@@ -25,7 +25,7 @@ func initializeRoutes() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Article{}, &model.User{})
 
 	env := &handler.Env{DB: db}
 
