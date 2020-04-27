@@ -3,20 +3,22 @@ package main
 import (
 	handler "ginhello/handlers"
 	model "ginhello/models"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var router *gin.Engine
 
 func main() {
+	port := os.Getenv("PORT")
+
 	router = gin.Default()
-
 	router.LoadHTMLGlob("templates/*")
-
 	initializeRoutes()
 
-	router.Run()
+	router.Run(":" + port)
 }
 
 func initializeRoutes() {
