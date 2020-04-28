@@ -2,17 +2,15 @@
 
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
-  <a href="/article/new">+ Add</a>
-   <!--Loop over the payload variable, which is the list of articles-->
-  {{range .payload }}
-    <!--Create the link for the article based on its ID-->
-    <a href="/article/view/{{.ID}}">
-      <!--Display the title of the article -->
-      <h2>{{.Title}}</h2>
-    </a>
-    <!--Display the content of the article-->
-    <p>{{.Content}}</p>
-  {{end}}
-
+  <main role="main">
+    <div class="jumbotron">
+        <div class="container">
+          <h1 class="display-3">Hello, world!</h1>
+          <p>Welcome to my homepage.</p>
+          <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

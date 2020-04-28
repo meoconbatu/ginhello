@@ -22,8 +22,10 @@
     
 <!--Embed the header.html template at this location-->
 
-    <form method="POST" action = "/signin" class="text-center form-signin">
-        <img class="mb-4" src="/img/go-seeklogo.com.svg" alt="" width="72" height="72">
+    <form method="POST" action = "/signin" class="text-center form-signin jumbotron">
+        <a href="/">
+            <img class="mb-4" src="/img/go-seeklogo.com.svg" alt="" width="72" height="72">
+        </a>
         <div class="form-group">
             <label for="InputUsername">Username</label>
             <input type="text" name="username" class="form-control" id="InputUsername">
@@ -35,7 +37,7 @@
         <button type="submit" class="btn btn-lg btn-primary btn-block">Sign in</button>
 
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#">New around here? Sign up</a>
+        <a class="dropdown-item" href="/signup">New around here? Sign up</a>
         <a class="dropdown-item" href="#">Forgot password?</a>
     </form>
 

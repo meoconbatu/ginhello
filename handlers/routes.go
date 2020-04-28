@@ -18,10 +18,16 @@ type Env struct {
 
 // ShowIndexPage func
 func (env *Env) ShowIndexPage(c *gin.Context) {
+	render(c, gin.H{
+		"title": "Home Page"}, "index.html")
+}
+
+// GetArticles func
+func (env *Env) GetArticles(c *gin.Context) {
 	articles := env.DB.GetAllArticles()
 	render(c, gin.H{
 		"title":   "Home Page",
-		"payload": articles}, "index.html")
+		"payload": articles}, "articles.html")
 }
 
 // GetArticle func
@@ -53,7 +59,7 @@ func (env *Env) CreateArticle(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/articles")
+		c.Redirect(http.StatusSeeOther, "/")
 	}
 }
 
@@ -70,7 +76,7 @@ func (env *Env) Signin(c *gin.Context) {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/articles")
+		c.Redirect(http.StatusSeeOther, "/")
 	}
 }
 
@@ -89,7 +95,7 @@ func (env *Env) Signup(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/articles")
+		c.Redirect(http.StatusSeeOther, "/")
 	}
 }
 func render(c *gin.Context, data gin.H, templateName string) {
