@@ -53,7 +53,7 @@ func (env *Env) CreateArticle(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		c.Redirect(http.StatusSeeOther, "/articles")
 	}
 }
 
@@ -70,7 +70,7 @@ func (env *Env) Signin(c *gin.Context) {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		c.Redirect(http.StatusSeeOther, "/articles")
 	}
 }
 
@@ -89,7 +89,7 @@ func (env *Env) Signup(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		c.Redirect(http.StatusSeeOther, "/articles")
 	}
 }
 func render(c *gin.Context, data gin.H, templateName string) {

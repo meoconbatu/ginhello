@@ -33,7 +33,9 @@ func initializeRoutes() {
 
 	env := &handler.Env{DB: db}
 
-	router.GET("/", env.ShowIndexPage)
+	router.GET("/", env.Signin)
+
+	router.GET("/articles", env.ShowIndexPage)
 	router.GET("/article/view/:article_id", env.GetArticle)
 	router.GET("/article/new", env.CreateArticle)
 	router.POST("/article/new", env.CreateArticle)
