@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 func getRouter(withTemplate bool) *gin.Engine {
 	router := gin.Default()
 	if withTemplate {
-		router.LoadHTMLGlob("../templates/*")
+		router.LoadHTMLGlob("../templates/*.html")
 	}
 	return router
 
