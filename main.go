@@ -15,7 +15,9 @@ func main() {
 	port := os.Getenv("PORT")
 
 	router = gin.Default()
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("templates/*.html")
+	router.Static("/css", "./templates/css")
+	router.Static("/img", "./templates/img")
 	initializeRoutes()
 
 	router.Run(":" + port)
