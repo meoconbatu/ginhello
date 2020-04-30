@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	model "ginhello/models"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,7 +61,7 @@ func (env *Env) CreateArticle(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		c.Redirect(http.StatusFound, "/")
 	}
 }
 
@@ -76,7 +78,15 @@ func (env *Env) Signin(c *gin.Context) {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		session := sessions.Default(c)
+		session.Set("user", model.User{Username: username})
+		err = session.Save()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			fmt.Println(err)
+			return
+		}
+		c.Redirect(http.StatusFound, "/")
 	}
 }
 
@@ -95,9 +105,10 @@ func (env *Env) Signup(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		c.Redirect(http.StatusFound, "/")
 	}
 }
+
 func render(c *gin.Context, data gin.H, templateName string) {
 	switch c.Request.Header.Get("Accept") {
 	case "application/json":
@@ -105,6 +116,14 @@ func render(c *gin.Context, data gin.H, templateName string) {
 	case "application/xml":
 		c.XML(http.StatusOK, data["payload"])
 	default:
+		session := sessions.Default(c)
+		user := session.Get("user")
+		if user != nil {
+			u, ok := user.(model.User)
+			if ok {
+				data["user"] = u
+			}
+		}
 		c.HTML(http.StatusOK, templateName, data)
 	}
 }

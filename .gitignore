@@ -4,3 +4,4 @@ gorm.db
 .gcloudignore
 app.yaml
 .env
+.vscode/
