@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/gob"
 	model "ginhello/models"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,8 @@ import (
 
 	"os"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,6 +50,11 @@ func getRouter(withTemplate bool) *gin.Engine {
 	if withTemplate {
 		router.LoadHTMLGlob("../templates/*.html")
 	}
+
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
+	gob.Register(model.User{})
+
 	return router
 
 }

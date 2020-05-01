@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/gob"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 	model "ginhello/models"
 
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -107,6 +109,65 @@ func (env *Env) Signup(c *gin.Context) {
 		}
 		c.Redirect(http.StatusFound, "/")
 	}
+}
+
+// SetupRouter func
+func SetupRouter(env *Env) *gin.Engine {
+	router := gin.Default()
+
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
+	gob.Register(model.User{})
+	var accessPath string
+	if gin.Mode() == gin.TestMode {
+		accessPath = "../"
+	} else {
+		accessPath = "./"
+	}
+	router.LoadHTMLGlob(accessPath + "templates/*.html")
+	router.Static("/css", accessPath+"templates/css")
+	router.Static("/img", accessPath+"templates/img")
+
+	router.GET("/", env.ShowIndexPage)
+
+	router.GET("/signin", env.Signin)
+	router.POST("/signin", env.Signin)
+
+	router.GET("/signup", env.Signup)
+	router.POST("/signup", env.Signup)
+
+	router.Use(authRequired())
+	{
+		router.GET("/article/view", env.GetArticles)
+		router.GET("/article/view/:article_id", env.GetArticle)
+		router.GET("/article/new", env.CreateArticle)
+		router.POST("/article/new", env.CreateArticle)
+	}
+	return router
+}
+
+func authRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		currentUser := isAuthenticated(c)
+		if currentUser == nil {
+			c.Redirect(http.StatusSeeOther, "/signin")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+func isAuthenticated(c *gin.Context) *model.User {
+	session := sessions.Default(c)
+	sUser := session.Get("user")
+	if sUser == nil {
+		return nil
+	}
+	user, ok := sUser.(model.User)
+	if !ok {
+		return nil
+	}
+	return &user
 }
 
 func render(c *gin.Context, data gin.H, templateName string) {
