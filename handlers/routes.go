@@ -111,6 +111,17 @@ func (env *Env) Signup(c *gin.Context) {
 	}
 }
 
+// Signout func
+func (env *Env) Signout(c *gin.Context) {
+	session := sessions.Default(c)
+	session.Delete("user")
+	err := session.Save()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	c.Redirect(http.StatusTemporaryRedirect, "/")
+}
+
 // SetupRouter func
 func SetupRouter(env *Env) *gin.Engine {
 	router := gin.Default()
@@ -135,6 +146,8 @@ func SetupRouter(env *Env) *gin.Engine {
 
 	router.GET("/signup", env.Signup)
 	router.POST("/signup", env.Signup)
+
+	router.GET("signout", env.Signout)
 
 	router.Use(authRequired())
 	{
