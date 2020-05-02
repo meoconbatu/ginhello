@@ -5,3 +5,4 @@ gorm.db
 app.yaml
 .env
 .vscode/
+tmp/

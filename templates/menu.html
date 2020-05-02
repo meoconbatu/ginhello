@@ -10,12 +10,19 @@
     </li>
   </ul>
   <ul class="nav justify-content-end">
-    <li class="nav-item">
       {{ if .user }}
-        <a class="text-light" href="/"> {{ .user.Username }} </a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ .user.Username }}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="#">Sign Out</a>
+          </div>
+        </li>
       {{ else }}
-        <a class="btn btn-secondary active" href="/signin">Sign in</a>
+        <li class="nav-item">
+          <a class="btn btn-secondary active" href="/signin">Sign in</a>
+        </li>
       {{ end }}
-    </li>
   </ul>
 </nav>
