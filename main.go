@@ -19,7 +19,7 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&model.Article{}, &model.User{})
+	db.AutoMigrate(&model.Article{}, &model.User{}, &model.VerificationToken{})
 
 	env := &handler.Env{DB: db}
 

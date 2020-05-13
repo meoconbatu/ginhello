@@ -41,6 +41,13 @@ func (mdb *mockDB) AuthenticateUser(username, password string) error {
 func (mdb *mockDB) CreateUser(user *model.User) error {
 	return nil
 }
+func (mdb *mockDB) EnableUser(userid int) error {
+	return nil
+}
+
+func (mdb *mockDB) GetVerificationToken(token string) *model.VerificationToken {
+	return nil
+}
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
 	os.Exit(m.Run())

@@ -3,14 +3,20 @@ package handler
 import (
 	"encoding/gob"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 
 	model "ginhello/models"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 // Env struct
@@ -81,7 +87,7 @@ func (env *Env) Signin(c *gin.Context) {
 			return
 		}
 		session := sessions.Default(c)
-		session.Set("user", model.User{Username: username})
+		session.Set("user", model.User{Username: username, VerificationTokens: []model.VerificationToken{}})
 		err = session.Save()
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
@@ -103,12 +109,46 @@ func (env *Env) Signup(c *gin.Context) {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
+
+		token := uuid.New()
+		verificationToken := model.VerificationToken{Token: token.String(), ExpiryDate: time.Now().Local().Add(24 * time.Hour)}
+		user.VerificationTokens = append(user.VerificationTokens, verificationToken)
 		if env.DB.CreateUser(&user) != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusFound, "/")
+
+		sendMail(user, token.String())
+		c.Redirect(http.StatusFound, "/signupsuccess")
 	}
+}
+
+// SignupSuccess func
+func (env *Env) SignupSuccess(c *gin.Context) {
+	switch c.Request.Method {
+	case "GET":
+		render(c, gin.H{"title": "Home Page"}, "signup_success.html")
+	}
+}
+
+//Verify func
+func (env *Env) Verify(c *gin.Context) {
+	token := c.Query("token")
+
+	verificationToken := env.DB.GetVerificationToken(token)
+	if verificationToken == nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if verificationToken.ExpiryDate.Before(time.Now()) {
+		c.AbortWithStatus(http.StatusBadRequest) // should redirect to resend another email verification
+		return
+	}
+	if err := env.DB.EnableUser(verificationToken.UserID); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.Redirect(http.StatusFound, "/")
 }
 
 // Signout func
@@ -146,6 +186,9 @@ func SetupRouter(env *Env) *gin.Engine {
 
 	router.GET("/signup", env.Signup)
 	router.POST("/signup", env.Signup)
+	router.GET("/signupsuccess", env.SignupSuccess)
+
+	router.GET("/verify", env.Verify)
 
 	router.GET("signout", env.Signout)
 
@@ -199,5 +242,36 @@ func render(c *gin.Context, data gin.H, templateName string) {
 			}
 		}
 		c.HTML(http.StatusOK, templateName, data)
+	}
+}
+func sendMail(user model.User, token string) {
+	from := mail.NewEmail("gin-hello", "meo.con.batu1111@gmail.com")
+
+	message := mail.NewV3Mail()
+	message.SetFrom(from)
+	message.SetTemplateID("d-d2a069ef0d344ac39d27877770d1585d")
+	message.Subject = "Please confirm your email"
+	p := mail.NewPersonalization()
+
+	p.Subject = "Please confirm your email"
+
+	tos := []*mail.Email{
+		mail.NewEmail(user.Username, user.Email),
+	}
+	p.AddTos(tos...)
+
+	p.SetDynamicTemplateData("Username", user.Username)
+	p.SetDynamicTemplateData("URL", os.Getenv("HOST")+":"+os.Getenv("PORT")+"/verify?token="+token)
+
+	message.AddPersonalizations(p)
+
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(message)
+	if err != nil {
+		log.Println(err)
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
 	}
 }

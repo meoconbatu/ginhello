@@ -1,0 +1,18 @@
+<!--signup_success.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+  <main role="main">
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="display-3">Nearly done!</h1>
+        <p>We've sent you an email.</br>
+        Please check your email and verify your account.</br>
+        If you don't see our email, check your junk folder.</p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button">Resend verification email</a></p>
+        <a href="/signin">Back to sign in</a>
+      </div>
+    </div>
+  </main>
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}

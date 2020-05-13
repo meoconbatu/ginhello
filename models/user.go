@@ -8,9 +8,12 @@ import (
 
 // User type
 type User struct {
-	ID       int
-	Username string `form:"username"`
-	Password string `form:"password"`
+	ID                 int
+	Username           string `form:"username"`
+	Password           string `form:"password"`
+	Email              string `form:"email"`
+	Enabled            bool
+	VerificationTokens []VerificationToken
 }
 
 // AuthenticateUser func
@@ -47,6 +50,13 @@ func (db *DB) CreateUser(user *User) error {
 	if user.ID == 0 {
 		return errors.New("Error when create user")
 	}
+	return nil
+}
+
+// EnableUser func
+func (db *DB) EnableUser(userid int) error {
+	user := User{ID: userid}
+	db.Model(&user).Update("Enabled", true)
 	return nil
 }
 

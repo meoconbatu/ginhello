@@ -16,6 +16,9 @@ type DataStore interface {
 
 	AuthenticateUser(username, password string) error
 	CreateUser(user *User) error
+	EnableUser(userid int) error
+
+	GetVerificationToken(token string) *VerificationToken
 }
 
 // DB type
