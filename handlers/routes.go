@@ -261,7 +261,13 @@ func sendMail(user model.User, token string) {
 	p.AddTos(tos...)
 
 	p.SetDynamicTemplateData("Username", user.Username)
-	p.SetDynamicTemplateData("URL", os.Getenv("HOST")+":"+os.Getenv("PORT")+"/verify?token="+token)
+	var server string
+	if gin.Mode() == gin.ReleaseMode {
+		server = os.Getenv("HOST")
+	} else {
+		server = os.Getenv("HOST") + ":" + os.Getenv("PORT")
+	}
+	p.SetDynamicTemplateData("URL", server+"/verify?token="+token)
 
 	message.AddPersonalizations(p)
 
