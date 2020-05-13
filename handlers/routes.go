@@ -125,10 +125,7 @@ func (env *Env) Signup(c *gin.Context) {
 
 // SignupSuccess func
 func (env *Env) SignupSuccess(c *gin.Context) {
-	switch c.Request.Method {
-	case "GET":
-		render(c, gin.H{"title": "Home Page"}, "signup_success.html")
-	}
+	render(c, gin.H{"title": "Home Page"}, "signup_success.html")
 }
 
 //Verify func
@@ -148,7 +145,12 @@ func (env *Env) Verify(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.Redirect(http.StatusFound, "/")
+	c.Redirect(http.StatusFound, "/verificationsuccess")
+}
+
+// VerificationSuccess func
+func (env *Env) VerificationSuccess(c *gin.Context) {
+	render(c, gin.H{"title": "Home Page"}, "verification_success.html")
 }
 
 // Signout func
@@ -189,8 +191,9 @@ func SetupRouter(env *Env) *gin.Engine {
 	router.GET("/signupsuccess", env.SignupSuccess)
 
 	router.GET("/verify", env.Verify)
+	router.GET("/verificationsuccess", env.VerificationSuccess)
 
-	router.GET("signout", env.Signout)
+	router.GET("/signout", env.Signout)
 
 	router.Use(authRequired())
 	{
