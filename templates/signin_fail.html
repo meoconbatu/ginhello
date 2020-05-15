@@ -1,0 +1,19 @@
+<!--signin_fail.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+  <main role="main">
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="display-3">Couldn't sign you in!</h1>
+        <p>Your account has not been verified.</br>
+          Look for the verification email in your inbox and click the link in that email.</br> 
+          A confirmation message will appear in your web browser.
+        </p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button">Resend verification email</a></p>
+        <a href="/">Back to Home page</a>
+      </div>
+    </div>
+  </main>
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}

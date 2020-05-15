@@ -16,11 +16,23 @@ type User struct {
 	VerificationTokens []VerificationToken
 }
 
+var (
+	// ErrUserNotFound var
+	ErrUserNotFound = errors.New("user not found")
+	// ErrEmailNotVerified var
+	ErrEmailNotVerified = errors.New("email not verified")
+	// ErrUserAlreadyExists var
+	ErrUserAlreadyExists = errors.New("username already exists")
+)
+
 // AuthenticateUser func
 func (db *DB) AuthenticateUser(username, password string) error {
 	user, err := db.getUserByUsername(username)
 	if err != nil {
 		return err
+	}
+	if !user.Enabled {
+		return ErrEmailNotVerified
 	}
 	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 }
@@ -30,7 +42,7 @@ func (db *DB) getUserByUsername(username string) (*User, error) {
 	var user User
 	db.First(&user, User{Username: username})
 	if user.ID == 0 {
-		return nil, errors.New("User not found")
+		return nil, ErrUserNotFound
 	}
 	return &user, nil
 }
@@ -65,7 +77,7 @@ func (db *DB) existUsername(username string) error {
 	var user User
 	db.First(&user, User{Username: username})
 	if user.ID != 0 {
-		return errors.New("Username already exists")
+		return ErrUserAlreadyExists
 	}
 	return nil
 }

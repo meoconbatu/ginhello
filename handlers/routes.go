@@ -82,6 +82,10 @@ func (env *Env) Signin(c *gin.Context) {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
 		err := env.DB.AuthenticateUser(username, password)
+		if err == model.ErrEmailNotVerified {
+			c.Redirect(http.StatusFound, "signinfail")
+			return
+		}
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -96,6 +100,11 @@ func (env *Env) Signin(c *gin.Context) {
 		}
 		c.Redirect(http.StatusFound, "/")
 	}
+}
+
+// SigninFail func
+func (env *Env) SigninFail(c *gin.Context) {
+	render(c, gin.H{"title": "Home Page"}, "signin_fail.html")
 }
 
 // Signup func
@@ -185,6 +194,7 @@ func SetupRouter(env *Env) *gin.Engine {
 
 	router.GET("/signin", env.Signin)
 	router.POST("/signin", env.Signin)
+	router.GET("/signinfail", env.SigninFail)
 
 	router.GET("/signup", env.Signup)
 	router.POST("/signup", env.Signup)
@@ -213,7 +223,6 @@ func authRequired() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Next()
 	}
 }
 func isAuthenticated(c *gin.Context) *model.User {
