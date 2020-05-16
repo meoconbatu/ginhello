@@ -69,7 +69,7 @@ func (env *Env) CreateArticle(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusSeeOther, "/")
 	}
 }
 
@@ -83,7 +83,7 @@ func (env *Env) Signin(c *gin.Context) {
 		password := c.PostForm("password")
 		err := env.DB.AuthenticateUser(username, password)
 		if err == model.ErrEmailNotVerified {
-			c.Redirect(http.StatusFound, "signinfail")
+			c.Redirect(http.StatusSeeOther, "signinfail")
 			return
 		}
 		if err != nil {
@@ -98,7 +98,7 @@ func (env *Env) Signin(c *gin.Context) {
 			fmt.Println(err)
 			return
 		}
-		c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusSeeOther, "/")
 	}
 }
 
@@ -128,7 +128,7 @@ func (env *Env) Signup(c *gin.Context) {
 		}
 
 		sendMail(user, token.String())
-		c.Redirect(http.StatusFound, "/signupsuccess")
+		c.Redirect(http.StatusSeeOther, "/signupsuccess")
 	}
 }
 
@@ -154,7 +154,7 @@ func (env *Env) Verify(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	c.Redirect(http.StatusFound, "/verificationsuccess")
+	c.Redirect(http.StatusSeeOther, "/verificationsuccess")
 }
 
 // VerificationSuccess func
