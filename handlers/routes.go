@@ -89,7 +89,6 @@ func (env *Env) Signin(c *gin.Context) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		time.Sleep(5 * time.Second)
 		err = env.DB.AuthenticateUser(userLogin.Username, userLogin.Password)
 		if err == model.ErrEmailNotVerified {
 			// c.Redirect(http.StatusSeeOther, "signinfail")
