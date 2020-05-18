@@ -23,6 +23,8 @@ var (
 	ErrEmailNotVerified = errors.New("email not verified")
 	// ErrUserAlreadyExists var
 	ErrUserAlreadyExists = errors.New("username already exists")
+	// ErrWrongPassword var
+	ErrWrongPassword = errors.New("wrong password")
 )
 
 // AuthenticateUser func
@@ -31,10 +33,13 @@ func (db *DB) AuthenticateUser(username, password string) error {
 	if err != nil {
 		return err
 	}
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+		return ErrWrongPassword
+	}
 	if !user.Enabled {
 		return ErrEmailNotVerified
 	}
-	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	return nil
 }
 
 // GetUserByUsername func
@@ -49,9 +54,8 @@ func (db *DB) getUserByUsername(username string) (*User, error) {
 
 // CreateUser func
 func (db *DB) CreateUser(user *User) error {
-	err := db.existUsername(user.Username)
-	if err != nil {
-		return err
+	if db.existUsername(user.Username) {
+		return ErrUserAlreadyExists
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -73,11 +77,11 @@ func (db *DB) EnableUser(userid int) error {
 }
 
 // ExistUsername func
-func (db *DB) existUsername(username string) error {
+func (db *DB) existUsername(username string) bool {
 	var user User
 	db.First(&user, User{Username: username})
 	if user.ID != 0 {
-		return ErrUserAlreadyExists
+		return true
 	}
-	return nil
+	return false
 }

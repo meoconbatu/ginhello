@@ -90,6 +90,7 @@ func (env *Env) Signin(c *gin.Context) {
 			return
 		}
 		err = env.DB.AuthenticateUser(userLogin.Username, userLogin.Password)
+		fmt.Println(err)
 		if err == model.ErrEmailNotVerified {
 			// c.Redirect(http.StatusSeeOther, "signinfail")
 			c.JSON(http.StatusOK, gin.H{"status": "seeother", "redirect": "/signinfail"})
