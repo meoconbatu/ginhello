@@ -24,7 +24,11 @@ type Env struct {
 	DB model.DataStore
 }
 
-// DB variable
+// UserLogin struct
+type UserLogin struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
 // ShowIndexPage func
 func (env *Env) ShowIndexPage(c *gin.Context) {
@@ -79,26 +83,33 @@ func (env *Env) Signin(c *gin.Context) {
 	case "GET":
 		render(c, gin.H{"title": "Home Page"}, "signin.html")
 	case "POST":
-		username := c.PostForm("username")
-		password := c.PostForm("password")
-		err := env.DB.AuthenticateUser(username, password)
+		userLogin := UserLogin{}
+		err := c.BindJSON(&userLogin)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		time.Sleep(5 * time.Second)
+		err = env.DB.AuthenticateUser(userLogin.Username, userLogin.Password)
 		if err == model.ErrEmailNotVerified {
-			c.Redirect(http.StatusSeeOther, "signinfail")
+			// c.Redirect(http.StatusSeeOther, "signinfail")
+			c.JSON(http.StatusOK, gin.H{"status": "seeother", "redirect": "/signinfail"})
 			return
 		}
 		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.JSON(http.StatusOK, gin.H{"status": "unauthorized", "redirect": "/signinfail"})
+			// c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 		session := sessions.Default(c)
-		session.Set("user", model.User{Username: username, VerificationTokens: []model.VerificationToken{}})
+		session.Set("user", model.User{Username: userLogin.Username, VerificationTokens: []model.VerificationToken{}})
 		err = session.Save()
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
-			fmt.Println(err)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/")
+		// c.Redirect(http.StatusSeeOther, "/")
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "redirect": "/"})
 	}
 }
 

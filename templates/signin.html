@@ -4,25 +4,29 @@
 <!doctype html>
 <html>
 
-  <head>
+<head>
     <!--Use the title variable to set the title of the page-->
     <title>{{ .title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
 
     <!--Use bootstrap to make the application look nice-->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <link href="css/signin.css" rel="stylesheet">
-  </head>
+</head>
 
-  <body class="container">
+<body class="container">
     <!--Embed the menu.html template at this location-->
-    
-<!--Embed the header.html template at this location-->
 
-    <form method="POST" action = "/signin" class="text-center form-signin jumbotron">
+    <!--Embed the header.html template at this location-->
+
+    <form method="POST" action="/signin" class="text-center form-signin jumbotron">
         <a href="/">
             <img class="mb-4" src="/img/go-seeklogo.com.svg" alt="" width="72" height="72">
         </a>
@@ -34,12 +38,46 @@
             <label for="InputPassword">Password</label>
             <input type="password" name="password" class="form-control" id="InputPassword">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary btn-block">Sign in</button>
-
-        <div class="dropdown-divider"></div>
+        <button type="submit" class="btn btn-lg btn-primary btn-block" id="BtnSubmit">Sign in</button>
+        <label class="form-group form-check-label">
+            <span class="text-danger align-middle" id="SpanMessage"></span>
+        </label>
+        <!-- <div class="dropdown-divider"></div> -->
         <a class="dropdown-item" href="/signup">New around here? Sign up</a>
         <a class="dropdown-item" href="#">Forgot password?</a>
+        <div class="clearfix d-none" id="loading">
+            <div class="spinner-border float-center" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
     </form>
-
-<!--Embed the footer.html template at this location-->
-{{ template "footer.html" .}}
+    <script>
+        $("#BtnSubmit").click(function (e) {
+            e.preventDefault();
+            $("#SpanMessage").text("");
+            $.ajax({
+                type: "POST",
+                url: "/signin",
+                contentType: "application/json; charset=utf-8",
+                data: '{"username":"' + $("#InputUsername").val() + '","password":"' + $("#InputPassword").val() + '"}',
+                dataType: "json",
+                beforeSend: function () {
+                    $("#loading").removeClass("d-none"); 
+                },
+                complete: function () {
+                    $("#loading").addClass("d-none"); 
+                },
+                success: function (result, status, xhr) {
+                    if (result.status == "unauthorized") {
+                        $("#SpanMessage").text("Incorrect username or password.");
+                    } else {
+                        window.location.href = result.redirect
+                    }
+                }, error: function (xhr, status, error) {
+                    $("#dbData").html("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                }
+            })
+        });
+    </script>
+    <!--Embed the footer.html template at this location-->
+    {{ template "footer.html" .}}
