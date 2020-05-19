@@ -52,6 +52,9 @@
         </div>
     </form>
     <script>
+        $("input").on("input", function () {
+            $("#SpanMessage").text("");
+        });
         $("#BtnSubmit").click(function (e) {
             e.preventDefault();
             $("#SpanMessage").text("");
@@ -62,10 +65,10 @@
                 data: '{"username":"' + $("#InputUsername").val() + '","password":"' + $("#InputPassword").val() + '"}',
                 dataType: "json",
                 beforeSend: function () {
-                    $("#loading").removeClass("d-none"); 
+                    $("#loading").removeClass("d-none");
                 },
                 complete: function () {
-                    $("#loading").addClass("d-none"); 
+                    $("#loading").addClass("d-none");
                 },
                 success: function (result, status, xhr) {
                     if (result.status == "unauthorized") {
