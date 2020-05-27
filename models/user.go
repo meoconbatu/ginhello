@@ -9,10 +9,10 @@ import (
 // User type
 type User struct {
 	ID                 int
-	Username           string `form:"username"`
+	Username           string `form:"username" json:"name"`
 	Password           string `form:"password"`
-	Email              string `form:"email"`
-	Enabled            bool
+	Email              string `form:"email" json:"email"`
+	Enabled            bool   `json:"email_verified"`
 	VerificationTokens []VerificationToken
 }
 

@@ -22,6 +22,9 @@
 </head>
 
 <body class="container">
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0&appId=255106532473348&autoLogAppEvents=1"></script>
     <!--Embed the menu.html template at this location-->
 
     <!--Embed the header.html template at this location-->
@@ -38,18 +41,16 @@
             <label for="InputPassword">Password</label>
             <input type="password" name="password" class="form-control" id="InputPassword">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary btn-block" id="BtnSubmit">Sign in</button>
+        <button type="submit" class="form-group btn btn-lg btn-primary btn-block" id="BtnSubmit">Sign in</button>
+        <a href="/signinwithgoogle" class="form-group btn">
+            <img class="" src="/img/btn_google_signin_light_normal_web.png">
+        </a>
         <label class="form-group form-check-label">
             <span class="text-danger align-middle" id="SpanMessage"></span>
         </label>
         <!-- <div class="dropdown-divider"></div> -->
         <a class="dropdown-item" href="/signup">New around here? Sign up</a>
         <a class="dropdown-item" href="#">Forgot password?</a>
-        <div class="clearfix d-none" id="loading">
-            <div class="spinner-border float-center" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-        </div>
     </form>
     <script>
         $("input").on("input", function () {
@@ -81,6 +82,7 @@
                 }
             })
         });
+
     </script>
     <!--Embed the footer.html template at this location-->
     {{ template "footer.html" .}}

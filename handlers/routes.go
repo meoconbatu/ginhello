@@ -2,21 +2,13 @@ package handler
 
 import (
 	"encoding/gob"
-	"fmt"
-	"log"
 	"net/http"
-	"os"
-	"strconv"
-	"time"
 
 	model "ginhello/models"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 // Env struct
@@ -24,164 +16,10 @@ type Env struct {
 	DB model.DataStore
 }
 
-// UserLogin struct
-type UserLogin struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 // ShowIndexPage func
 func (env *Env) ShowIndexPage(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Home Page"}, "index.html")
-}
-
-// GetArticles func
-func (env *Env) GetArticles(c *gin.Context) {
-	articles := env.DB.GetAllArticles()
-	render(c, gin.H{
-		"title":   "Home Page",
-		"payload": articles}, "articles.html")
-}
-
-// GetArticle func
-func (env *Env) GetArticle(c *gin.Context) {
-	if articleID, err := strconv.Atoi(c.Param("article_id")); err == nil {
-		if article, err := env.DB.GetArticleByID(articleID); err == nil {
-			render(c, gin.H{
-				"title":   "Home Page",
-				"payload": article}, "article.html")
-		} else {
-			c.AbortWithStatus(http.StatusNotFound)
-		}
-	}
-}
-
-// CreateArticle func
-func (env *Env) CreateArticle(c *gin.Context) {
-	switch c.Request.Method {
-	case "GET":
-		render(c, gin.H{"title": "Home Page"}, "new.html")
-	case "POST":
-		var article model.Article
-		if c.ShouldBind(&article) != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-		err := env.DB.CreateArticle(&article)
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-		c.Redirect(http.StatusSeeOther, "/")
-	}
-}
-
-// Signin func
-func (env *Env) Signin(c *gin.Context) {
-	switch c.Request.Method {
-	case "GET":
-		render(c, gin.H{"title": "Home Page"}, "signin.html")
-	case "POST":
-		userLogin := UserLogin{}
-		err := c.BindJSON(&userLogin)
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-		err = env.DB.AuthenticateUser(userLogin.Username, userLogin.Password)
-		fmt.Println(err)
-		if err == model.ErrEmailNotVerified {
-			// c.Redirect(http.StatusSeeOther, "signinfail")
-			c.JSON(http.StatusOK, gin.H{"status": "seeother", "redirect": "/signinfail"})
-			return
-		}
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"status": "unauthorized", "redirect": "/signinfail"})
-			// c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		session := sessions.Default(c)
-		session.Set("user", model.User{Username: userLogin.Username, VerificationTokens: []model.VerificationToken{}})
-		err = session.Save()
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-		// c.Redirect(http.StatusSeeOther, "/")
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "redirect": "/"})
-	}
-}
-
-// SigninFail func
-func (env *Env) SigninFail(c *gin.Context) {
-	render(c, gin.H{"title": "Home Page"}, "signin_fail.html")
-}
-
-// Signup func
-func (env *Env) Signup(c *gin.Context) {
-	switch c.Request.Method {
-	case "GET":
-		render(c, gin.H{"title": "Home Page"}, "signup.html")
-	case "POST":
-		var user model.User
-		if c.ShouldBind(&user) != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-
-		token := uuid.New()
-		verificationToken := model.VerificationToken{Token: token.String(), ExpiryDate: time.Now().Local().Add(24 * time.Hour)}
-		user.VerificationTokens = append(user.VerificationTokens, verificationToken)
-		if env.DB.CreateUser(&user) != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-
-		sendMail(user, token.String())
-		c.Redirect(http.StatusSeeOther, "/signupsuccess")
-	}
-}
-
-// SignupSuccess func
-func (env *Env) SignupSuccess(c *gin.Context) {
-	render(c, gin.H{"title": "Home Page"}, "signup_success.html")
-}
-
-//Verify func
-func (env *Env) Verify(c *gin.Context) {
-	token := c.Query("token")
-
-	verificationToken := env.DB.GetVerificationToken(token)
-	if verificationToken == nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	if verificationToken.ExpiryDate.Before(time.Now()) {
-		c.AbortWithStatus(http.StatusBadRequest) // should redirect to resend another email verification
-		return
-	}
-	if err := env.DB.EnableUser(verificationToken.UserID); err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	c.Redirect(http.StatusSeeOther, "/verificationsuccess")
-}
-
-// VerificationSuccess func
-func (env *Env) VerificationSuccess(c *gin.Context) {
-	render(c, gin.H{"title": "Home Page"}, "verification_success.html")
-}
-
-// Signout func
-func (env *Env) Signout(c *gin.Context) {
-	session := sessions.Default(c)
-	session.Delete("user")
-	err := session.Save()
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-	}
-	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
 // SetupRouter func
@@ -205,6 +43,10 @@ func SetupRouter(env *Env) *gin.Engine {
 
 	router.GET("/signin", env.Signin)
 	router.POST("/signin", env.Signin)
+
+	router.GET("/signinwithgoogle", env.SigninWithGoogle)
+	router.GET("/callbackgoogle", env.SigninWithGoogleCallback)
+
 	router.GET("/signinfail", env.SigninFail)
 
 	router.GET("/signup", env.Signup)
@@ -265,42 +107,5 @@ func render(c *gin.Context, data gin.H, templateName string) {
 			}
 		}
 		c.HTML(http.StatusOK, templateName, data)
-	}
-}
-func sendMail(user model.User, token string) {
-	from := mail.NewEmail("gin-hello", "meo.con.batu1111@gmail.com")
-
-	message := mail.NewV3Mail()
-	message.SetFrom(from)
-	message.SetTemplateID("d-d2a069ef0d344ac39d27877770d1585d")
-	message.Subject = "Please confirm your email"
-	p := mail.NewPersonalization()
-
-	p.Subject = "Please confirm your email"
-
-	tos := []*mail.Email{
-		mail.NewEmail(user.Username, user.Email),
-	}
-	p.AddTos(tos...)
-
-	p.SetDynamicTemplateData("Username", user.Username)
-	var server string
-	if gin.Mode() == gin.ReleaseMode {
-		server = os.Getenv("HOST")
-	} else {
-		server = os.Getenv("HOST") + ":" + os.Getenv("PORT")
-	}
-	p.SetDynamicTemplateData("URL", server+"/verify?token="+token)
-
-	message.AddPersonalizations(p)
-
-	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
-	response, err := client.Send(message)
-	if err != nil {
-		log.Println(err)
-	} else {
-		fmt.Println(response.StatusCode)
-		fmt.Println(response.Body)
-		fmt.Println(response.Headers)
 	}
 }
