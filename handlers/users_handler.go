@@ -96,6 +96,7 @@ func (env *Env) SigninWithGoogleCallback(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	fmt.Println(tok)
 	client := conf.Client(oauth2.NoContext, tok)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {

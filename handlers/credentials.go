@@ -26,12 +26,12 @@ func init() {
 	if gin.Mode() == gin.ReleaseMode {
 		server = os.Getenv("HOST")
 	} else {
-		server = os.Getenv("HOST") // + ":" + os.Getenv("PORT")
+		server = os.Getenv("HOST") + ":" + os.Getenv("PORT")
 	}
 	conf = &oauth2.Config{
 		ClientID:     c.Cid,
 		ClientSecret: c.Csecret,
-		RedirectURL:  server + "/callbackgoogle",
+		RedirectURL:  server + "/auth/google/callback",
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
 		Endpoint:     google.Endpoint,
 	}
