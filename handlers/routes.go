@@ -47,6 +47,9 @@ func SetupRouter(env *Env) *gin.Engine {
 	router.GET("/auth/google/signin", env.SigninWithGoogle)
 	router.GET("/auth/google/callback", env.SigninWithGoogleCallback)
 
+	router.GET("/auth/github/signin", env.SigninWithGithub)
+	router.GET("/auth/github/callback", env.SigninWithGithubCallback)
+
 	router.GET("/signinfail", env.SigninFail)
 
 	router.GET("/signup", env.Signup)

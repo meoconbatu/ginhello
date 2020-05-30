@@ -13,12 +13,16 @@
     <!--Use bootstrap to make the application look nice-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link href="css/signin.css" rel="stylesheet">
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <script src="https://kit.fontawesome.com/090990e961.js" crossorigin="anonymous"></script>
 
-    <link href="css/signin.css" rel="stylesheet">
 </head>
 
 <body class="container">
@@ -42,8 +46,14 @@
             <input type="password" name="password" class="form-control" id="InputPassword">
         </div>
         <button type="submit" class="form-group btn btn-lg btn-primary btn-block" id="BtnSubmit">Sign in</button>
-        <a href="/auth/google/signin" class="form-group btn">
+        <!-- <a href="/auth/google/signin" class="form-group btn">
             <img class="" src="/img/btn_google_signin_light_normal_web.png">
+        </a> -->
+        <a id="google-button" href="/auth/google/signin" class="btn btn-lg btn-block btn-social btn-google">
+            <i class="fab fa-google"></i> Sign in with Google
+        </a>
+        <a id="github-button"  href="/auth/github/signin" class="btn btn-lg btn-block btn-social btn-github">
+            <i class="fa fa-github"></i> Sign in with Github
         </a>
         <label class="form-group form-check-label">
             <span class="text-danger align-middle" id="SpanMessage"></span>

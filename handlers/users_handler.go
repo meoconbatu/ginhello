@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	model "ginhello/models"
@@ -72,33 +70,76 @@ func (env *Env) Signin(c *gin.Context) {
 func (env *Env) SigninWithGoogle(c *gin.Context) {
 	session := sessions.Default(c)
 	state := session.Get("state")
-	fmt.Println(state)
-	c.Redirect(http.StatusSeeOther, conf.AuthCodeURL(fmt.Sprintf("%s", state)))
+	c.Redirect(http.StatusSeeOther, confGoogle.AuthCodeURL(fmt.Sprintf("%s", state)))
 }
-func randToken() string {
-	b := make([]byte, 32)
-	rand.Read(b)
-	return base64.StdEncoding.EncodeToString(b)
+
+// SigninWithGithub func
+func (env *Env) SigninWithGithub(c *gin.Context) {
+	session := sessions.Default(c)
+	state := session.Get("state")
+	c.Redirect(http.StatusSeeOther, confGithub.AuthCodeURL(fmt.Sprintf("%s", state)))
 }
 
 // SigninWithGoogleCallback func
 func (env *Env) SigninWithGoogleCallback(c *gin.Context) {
 	session := sessions.Default(c)
 	state := session.Get("state")
-	fmt.Println(state)
 	if state != c.Query("state") {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Invalid session state: %s", state))
 		return
 	}
 
-	tok, err := conf.Exchange(oauth2.NoContext, c.Query("code"))
+	tok, err := confGoogle.Exchange(oauth2.NoContext, c.Query("code"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	fmt.Println(tok)
-	client := conf.Client(oauth2.NoContext, tok)
+	client := confGoogle.Client(oauth2.NoContext, tok)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	user := model.User{}
+	if err = json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	err = env.DB.CreateUser(&user)
+	if err != nil && err != model.ErrUserAlreadyExists {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	session.Set("user", model.User{Username: user.Username, VerificationTokens: []model.VerificationToken{}})
+	err = session.Save()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.Redirect(http.StatusSeeOther, "/")
+}
+
+// SigninWithGithubCallback func
+func (env *Env) SigninWithGithubCallback(c *gin.Context) {
+	session := sessions.Default(c)
+	state := session.Get("state")
+
+	if state != c.Query("state") {
+		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Invalid session state: %s", state))
+		return
+	}
+
+	tok, err := confGithub.Exchange(oauth2.NoContext, c.Query("code"))
+	fmt.Println(tok)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	client := confGithub.Client(oauth2.NoContext, tok)
+	resp, err := client.Get("https://api.github.com/user")
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
