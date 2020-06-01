@@ -50,6 +50,9 @@ func SetupRouter(env *Env) *gin.Engine {
 	router.GET("/auth/github/signin", env.SigninWithSocial(confGithub))
 	router.GET("/auth/github/callback", env.SigninWithSocialCallback(confGithub, GITHUB_USERINFO_ENDPOINT))
 
+	router.GET("/auth/facebook/signin", env.SigninWithSocial(confFacebook))
+	router.GET("/auth/facebook/callback", env.SigninWithSocialCallback(confFacebook, FACEBOOK_USERINFO_ENDPOINT))
+
 	router.GET("/signinfail", env.SigninFail)
 
 	router.GET("/signup", env.Signup)

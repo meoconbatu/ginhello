@@ -25,5 +25,5 @@ func main() {
 
 	router = handler.SetupRouter(env)
 
-	router.Run(":" + port)
+	router.RunTLS(":"+port, "server.crt", "server.key")
 }

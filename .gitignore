@@ -6,3 +6,5 @@ app.yaml
 .env
 .vscode/
 tmp/
+server.crt
+server.key

@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
 
 	"golang.org/x/oauth2/github"
@@ -25,13 +26,15 @@ type Credentials struct {
 }
 
 var (
-	confGoogle *oauth2.Config
-	confGithub *oauth2.Config
+	confGoogle   *oauth2.Config
+	confGithub   *oauth2.Config
+	confFacebook *oauth2.Config
 )
 
 const (
-	GITHUB_USERINFO_ENDPOINT = "https://api.github.com/user"
-	GOOGLE_USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v3/userinfo"
+	GITHUB_USERINFO_ENDPOINT   = "https://api.github.com/user"
+	GOOGLE_USERINFO_ENDPOINT   = "https://www.googleapis.com/oauth2/v3/userinfo"
+	FACEBOOK_USERINFO_ENDPOINT = "https://graph.facebook.com/me"
 )
 
 func init() {
@@ -60,6 +63,15 @@ func init() {
 		ClientSecret: cGithub.Csecret,
 		RedirectURL:  server + "/auth/github/callback",
 		Endpoint:     github.Endpoint,
+	}
+	cFacebook := Credentials{Cid: os.Getenv("FACEBOOK_CLIENT_ID"),
+		Csecret: os.Getenv("FACEBOOK_CLIENT_SECRET"),
+	}
+	confFacebook = &oauth2.Config{
+		ClientID:     cFacebook.Cid,
+		ClientSecret: cFacebook.Csecret,
+		RedirectURL:  server + "/auth/facebook/callback",
+		Endpoint:     facebook.Endpoint,
 	}
 }
 func randToken() string {
