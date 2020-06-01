@@ -44,11 +44,11 @@ func SetupRouter(env *Env) *gin.Engine {
 	router.GET("/signin", env.Signin)
 	router.POST("/signin", env.Signin)
 
-	router.GET("/auth/google/signin", env.SigninWithGoogle)
-	router.GET("/auth/google/callback", env.SigninWithGoogleCallback)
+	router.GET("/auth/google/signin", env.SigninWithSocial(confGoogle))
+	router.GET("/auth/google/callback", env.SigninWithSocialCallback(confGoogle, GOOGLE_USERINFO_ENDPOINT))
 
-	router.GET("/auth/github/signin", env.SigninWithGithub)
-	router.GET("/auth/github/callback", env.SigninWithGithubCallback)
+	router.GET("/auth/github/signin", env.SigninWithSocial(confGithub))
+	router.GET("/auth/github/callback", env.SigninWithSocialCallback(confGithub, GITHUB_USERINFO_ENDPOINT))
 
 	router.GET("/signinfail", env.SigninFail)
 
