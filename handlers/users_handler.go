@@ -112,7 +112,7 @@ func (env *Env) Verify(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest) // should redirect to resend another email verification
 		return
 	}
-	if err := env.DB.EnableUser(verificationToken.UserID); err != nil {
+	if err := env.DB.VerifyEmail(verificationToken.UserID); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

@@ -12,7 +12,7 @@ type User struct {
 	Username           string `form:"username" json:"name"`
 	Password           string `form:"password"`
 	Email              string `form:"email" json:"email"`
-	Enabled            bool   `json:"email_verified"`
+	EmailVerified      bool   `json:"email_verified"`
 	VerificationTokens []VerificationToken
 }
 
@@ -36,7 +36,7 @@ func (db *DB) AuthenticateUser(username, password string) error {
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
 		return ErrWrongPassword
 	}
-	if !user.Enabled {
+	if !user.EmailVerified {
 		return ErrEmailNotVerified
 	}
 	return nil
@@ -69,10 +69,10 @@ func (db *DB) CreateUser(user *User) error {
 	return nil
 }
 
-// EnableUser func
-func (db *DB) EnableUser(userid int) error {
+// VerifyEmail func
+func (db *DB) VerifyEmail(userid int) error {
 	user := User{ID: userid}
-	db.Model(&user).Update("Enabled", true)
+	db.Model(&user).Update("EmailVerified", true)
 	return nil
 }
 

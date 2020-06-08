@@ -41,7 +41,7 @@ func (mdb *mockDB) AuthenticateUser(username, password string) error {
 func (mdb *mockDB) CreateUser(user *model.User) error {
 	return nil
 }
-func (mdb *mockDB) EnableUser(userid int) error {
+func (mdb *mockDB) VerifyEmail(userid int) error {
 	return nil
 }
 
