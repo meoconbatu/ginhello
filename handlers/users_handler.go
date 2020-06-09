@@ -53,6 +53,7 @@ func (env *Env) Signin(c *gin.Context) {
 			return
 		}
 		session := sessions.Default(c)
+		session.Options(sessions.Options{MaxAge: 0, Path: "/", HttpOnly: true})
 		session.Set("user", model.User{Username: userLogin.Username, VerificationTokens: []model.VerificationToken{}})
 		err = session.Save()
 		if err != nil {

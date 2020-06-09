@@ -124,6 +124,7 @@ func (env *Env) SigninWithSocialCallback(conf *oauth2.Config, userinfoURL string
 			return
 		}
 		session.Set("user", model.User{Username: user.Username, VerificationTokens: []model.VerificationToken{}})
+		session.Options(sessions.Options{MaxAge: 0, Path: "/", HttpOnly: true})
 		err = session.Save()
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
