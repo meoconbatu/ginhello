@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/gob"
 	model "ginhello/models"
 	"net/http"
 	"net/http/httptest"
@@ -9,12 +8,15 @@ import (
 
 	"os"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
 type mockDB struct{}
+
+var (
+	env    Env
+	router *gin.Engine
+)
 
 func (mdb *mockDB) GetAllArticles() []model.Article {
 	return []model.Article{
@@ -50,20 +52,9 @@ func (mdb *mockDB) GetVerificationToken(token string) *model.VerificationToken {
 }
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
+	env = Env{&mockDB{}}
+	router = SetupRouter(&env)
 	os.Exit(m.Run())
-}
-func getRouter(withTemplate bool) *gin.Engine {
-	router := gin.Default()
-	if withTemplate {
-		router.LoadHTMLGlob("../templates/*.html")
-	}
-
-	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
-	gob.Register(model.User{})
-
-	return router
-
 }
 func testHTTPResponse(t *testing.T, router *gin.Engine, req *http.Request, f func(w *httptest.ResponseRecorder) bool) {
 	w := httptest.NewRecorder()
@@ -71,4 +62,10 @@ func testHTTPResponse(t *testing.T, router *gin.Engine, req *http.Request, f fun
 	if !f(w) {
 		t.Fail()
 	}
+}
+func performRequest(r *gin.Engine, method, path string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
 }

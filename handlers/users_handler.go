@@ -24,7 +24,7 @@ type UserLogin struct {
 // Signin func
 func (env *Env) Signin(c *gin.Context) {
 	switch c.Request.Method {
-	case "GET":
+	case http.MethodGet:
 		session := sessions.Default(c)
 		state := randToken()
 		session.Set("state", state)
@@ -34,7 +34,7 @@ func (env *Env) Signin(c *gin.Context) {
 			return
 		}
 		render(c, gin.H{"title": "Home Page"}, "signin.html")
-	case "POST":
+	case http.MethodPost:
 		userLogin := UserLogin{}
 		err := c.BindJSON(&userLogin)
 		if err != nil {
@@ -73,9 +73,9 @@ func (env *Env) SigninFail(c *gin.Context) {
 // Signup func
 func (env *Env) Signup(c *gin.Context) {
 	switch c.Request.Method {
-	case "GET":
+	case http.MethodGet:
 		render(c, gin.H{"title": "Home Page"}, "signup.html")
-	case "POST":
+	case http.MethodPost:
 		var user model.User
 		if c.ShouldBind(&user) != nil {
 			c.AbortWithStatus(http.StatusBadRequest)

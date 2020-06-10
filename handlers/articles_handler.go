@@ -32,9 +32,9 @@ func (env *Env) GetArticle(c *gin.Context) {
 // CreateArticle func
 func (env *Env) CreateArticle(c *gin.Context) {
 	switch c.Request.Method {
-	case "GET":
+	case http.MethodGet:
 		render(c, gin.H{"title": "Home Page"}, "new.html")
-	case "POST":
+	case http.MethodPost:
 		var article model.Article
 		if c.ShouldBind(&article) != nil {
 			c.AbortWithStatus(http.StatusBadRequest)

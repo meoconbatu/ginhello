@@ -1,40 +1,31 @@
 package handler
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-var env Env
-
-func init() {
-	env = Env{&mockDB{}}
+func TestShowIndexPage(t *testing.T) {
+	w := performRequest(router, http.MethodGet, "/")
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "Home Page")
 }
-func TestShowIndexPageUnauthenticated(t *testing.T) {
-	router := SetupRouter(&env)
-
-	req, _ := http.NewRequest("GET", "/", nil)
-
-	testHTTPResponse(t, router, req, func(w *httptest.ResponseRecorder) bool {
-		statusOK := w.Code == http.StatusOK
-		p, err := ioutil.ReadAll(w.Body)
-		pageOK := err == nil && strings.Index(string(p), "<title>Home Page</title>") > 0
-		return statusOK && pageOK
-	})
-}
-func TestArticleUnauthenticated(t *testing.T) {
-	router := SetupRouter(&env)
-
-	req, _ := http.NewRequest("GET", "/article/view/1", nil)
-
-	testHTTPResponse(t, router, req, func(w *httptest.ResponseRecorder) bool {
-		statusOK := w.Code == http.StatusSeeOther
-		response := w.Result()
-		location := response.Header.Get("Location")
-		pageOK := location == "/signin"
-		return statusOK && pageOK
-	})
+func TestRoutesUnauthenticated(t *testing.T) {
+	testRoutes := []struct {
+		name  string
+		route string
+	}{
+		{"view list articles", "/article/view"},
+		{"view an article", "/article/view/1"},
+		{"create an article", "/article/new"},
+	}
+	for _, tr := range testRoutes {
+		t.Run(tr.name, func(t *testing.T) {
+			w := performRequest(router, http.MethodGet, tr.route)
+			assert.Equal(t, http.StatusSeeOther, w.Code)
+			assert.Equal(t, "/signin", w.Header().Get("Location"))
+		})
+	}
 }
